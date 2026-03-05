@@ -34,6 +34,50 @@ Demonstrate how a Java program starts execution and prints structured console ou
 Introduce object modeling through abstraction and inheritance before introducing data structures.
 
 ---
+# 📦 Use Case 3 (UC3) – Centralized Inventory Management
+
+## 🎯 Goal
+Replace scattered availability variables with a centralized HashMap to manage room inventory consistently.
+
+---
+
+## 🧠 Problem Solved
+
+In UC2, availability was stored in separate variables:
+- Poor scalability
+- Inconsistent updates
+- No single source of truth
+
+UC3 introduces a dedicated `RoomInventory` class.
+
+---
+
+## 🧩 Key Concepts Used
+
+### 🔹 HashMap
+`HashMap<String, Integer>` maps:
+Room Type → Available Count
+
+### 🔹 O(1) Lookup
+Fast get() and put() operations.
+
+### 🔹 Single Source of Truth
+All availability stored in one centralized structure.
+
+### 🔹 Encapsulation
+Inventory logic is isolated in the `RoomInventory` class.
+
+### 🔹 Separation of Concerns
+- Room → What a room is
+- Inventory → How many rooms are available
+
+---
+
+## 🚀 Scalability
+
+Adding a new room type requires:
+```java
+inventory.registerRoom("Deluxe Room", 4);
 
 ## 🧠 Key Concepts Used
 
