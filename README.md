@@ -1,69 +1,64 @@
 # 🏨 BookMyStayApp
 
-## 📌 About This Project
+## 📌 Overview
 
-**BookMyStayApp** is a console-based Hotel Booking System developed in Java as part of my **placement exam training and structured practice program**.
+BookMyStayApp is a Java-based Hotel Booking Application developed as part of **placement exam training**.
 
-This project focuses on building strong fundamentals in:
+This project focuses on strengthening:
 
-- Core Java
-- Application structure
-- Execution flow
-- Professional documentation
-- Git branching workflow
-- Industry-level development discipline
-
-The goal is to simulate how real-world software projects are developed using proper structure and version control practices.
+- Core Java Concepts
+- Object-Oriented Programming (OOP)
+- Software Design Principles
+- Structured Application Development
 
 ---
 
-## 🎯 Project Objective
+# 🚀 Use Case 1 (UC1) – Application Entry & Welcome Page
 
-The primary objective of this project is to:
+### Goal
+Demonstrate how a Java program starts execution and prints structured console output.
 
-- Understand how a Java application starts execution
-- Establish a clear and predictable application entry point
-- Demonstrate structured program flow
-- Practice clean code organization
-- Follow a professional Git feature-branch workflow
-
-This project will evolve use case by use case, gradually building a complete hotel booking system.
-
----
-
-## 🧩 Current Implementation – UC1
-### Application Entry & Welcome Page
-
-### ✔ Goal
-Demonstrate how a Java program begins execution and produces console output.
-
-### ✔ Actor
-User – runs the application from the command line or IDE.
-
-### ✔ Flow
-1. User runs the application.
-2. JVM invokes the `main()` method.
-3. Application prints:
-    - Welcome message
-    - Application name
-    - Version information
-4. Application terminates successfully.
+### Concepts Used
+- Class
+- main() method
+- static keyword
+- Console output
+- JavaDoc documentation
+- Linear execution flow
 
 ---
 
-## 🧠 Key Concepts Covered
+# 🏗 Use Case 2 (UC2) – Object Modeling with Inheritance
 
-- Java Class Structure
-- `main()` Method (Application Entry Point)
-- `static` Keyword
-- Console Output using `System.out.println()`
-- String Literals & Constants
-- Method Invocation
-- Linear Application Flow
-- JavaDoc Documentation
-- Version Control using Git (Feature Branch Workflow)
+### Goal
+Introduce object modeling through abstraction and inheritance before introducing data structures.
 
 ---
+
+## 🧠 Key Concepts Used
+
+### 🔹 Abstract Class
+- `Room` class defines common structure for all room types.
+- Cannot be instantiated directly.
+
+### 🔹 Inheritance
+- `SingleRoom`
+- `DoubleRoom`
+- `SuiteRoom`
+  extend the abstract `Room` class.
+
+### 🔹 Polymorphism
+Room objects are referenced using the `Room` type.
+
+### 🔹 Encapsulation
+Room attributes are private and accessed via getters.
+
+### 🔹 Static Availability Representation
+Availability stored using simple variables.
+
+### 🔹 Separation of Domain and State
+- Room → what a room is
+- Availability → current system state
 
 ## 🏗 Project Structure
 BookMyStayApp

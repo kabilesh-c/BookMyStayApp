@@ -1,70 +1,113 @@
 /**
  * BookMyStayApp
  *
- * Entry point of the Hotel Booking Application.
- * Demonstrates how a Java application starts execution,
- * prints console output, and terminates gracefully.
+ * UC2 - Object Modeling with Inheritance & Abstraction
  *
- * This implementation establishes the foundational
- * execution flow of the system.
+ * Demonstrates:
+ * - Abstract Class
+ * - Inheritance
+ * - Polymorphism
+ * - Encapsulation
+ * - Separation of Domain and State
  *
  * @author Kabilesh C
- * @version 1.0.0
+ * @version 1.1.0
  */
+
+abstract class Room {
+
+    // Encapsulated attributes
+    private String roomType;
+    private int numberOfBeds;
+    private double sizeInSqFt;
+    private double pricePerNight;
+
+    public Room(String roomType, int numberOfBeds, double sizeInSqFt, double pricePerNight) {
+        this.roomType = roomType;
+        this.numberOfBeds = numberOfBeds;
+        this.sizeInSqFt = sizeInSqFt;
+        this.pricePerNight = pricePerNight;
+    }
+
+    public String getRoomType() {
+        return roomType;
+    }
+
+    public int getNumberOfBeds() {
+        return numberOfBeds;
+    }
+
+    public double getSizeInSqFt() {
+        return sizeInSqFt;
+    }
+
+    public double getPricePerNight() {
+        return pricePerNight;
+    }
+
+    // Common behavior
+    public void displayRoomDetails() {
+        System.out.println("Room Type      : " + roomType);
+        System.out.println("Beds           : " + numberOfBeds);
+        System.out.println("Size (sq.ft)   : " + sizeInSqFt);
+        System.out.println("Price/Night    : $" + pricePerNight);
+    }
+}
+
+// Concrete Room Types
+
+class SingleRoom extends Room {
+    public SingleRoom() {
+        super("Single Room", 1, 180, 120.00);
+    }
+}
+
+class DoubleRoom extends Room {
+    public DoubleRoom() {
+        super("Double Room", 2, 300, 200.00);
+    }
+}
+
+class SuiteRoom extends Room {
+    public SuiteRoom() {
+        super("Suite Room", 3, 550, 450.00);
+    }
+}
 
 public class BookMyStayApp {
 
-    // Application Constants
     private static final String APP_NAME = "BookMyStayApp";
-    private static final String VERSION = "1.0.0";
-    private static final String COMPANY_TAGLINE = "Explore. Book. Relax.";
+    private static final String VERSION = "1.1.0";
 
     public static void main(String[] args) {
 
-        initializeApplication();
-        displayWelcomeMessage();
-        displayVersionInformation();
-        closeApplication();
-
-    }
-
-    /**
-     * Initializes the application.
-     */
-    private static void initializeApplication() {
         System.out.println("==========================================");
-        System.out.println("       Initializing Application...        ");
+        System.out.println(" Welcome to " + APP_NAME);
+        System.out.println(" Version: " + VERSION);
         System.out.println("==========================================\n");
+
+        // Create Room Objects (Polymorphism)
+        Room single = new SingleRoom();
+        Room doubleRoom = new DoubleRoom();
+        Room suite = new SuiteRoom();
+
+        // Static Availability Representation
+        int singleAvailability = 5;
+        int doubleAvailability = 3;
+        int suiteAvailability = 2;
+
+        // Display Room Information
+        displayRoomWithAvailability(single, singleAvailability);
+        displayRoomWithAvailability(doubleRoom, doubleAvailability);
+        displayRoomWithAvailability(suite, suiteAvailability);
+
+        System.out.println("Application Terminated Successfully.");
     }
 
-    /**
-     * Displays the welcome screen.
-     */
-    private static void displayWelcomeMessage() {
-        System.out.println("==========================================");
-        System.out.println("        Welcome to " + APP_NAME);
-        System.out.println("==========================================");
-        System.out.println("Your trusted platform for booking stays.");
-        System.out.println(COMPANY_TAGLINE);
-        System.out.println();
-    }
-
-    /**
-     * Displays version information.
-     */
-    private static void displayVersionInformation() {
+    private static void displayRoomWithAvailability(Room room, int availability) {
         System.out.println("------------------------------------------");
-        System.out.println("Application Version : " + VERSION);
-        System.out.println("Status              : Running Successfully");
+        room.displayRoomDetails();
+        System.out.println("Available Rooms: " + availability);
         System.out.println("------------------------------------------\n");
-    }
-
-    /**
-     * Closes the application gracefully.
-     */
-    private static void closeApplication() {
-        System.out.println("Thank you for using " + APP_NAME + "!");
-        System.out.println("Application Closed Successfully.");
-        System.out.println("==========================================");
     }
 }
