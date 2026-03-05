@@ -1,3 +1,17 @@
+/**
+ * BookMyStayApp
+ *
+ * Entry point of the Hotel Booking Application.
+ * Demonstrates how a Java application starts execution,
+ * prints console output, and terminates gracefully.
+ *
+ * This implementation establishes the foundational
+ * execution flow of the system.
+ *
+ * @author Kabilesh C
+ * @version 1.0.0
+ */
+
 public class BookMyStayApp {
 
     // Application Constants
