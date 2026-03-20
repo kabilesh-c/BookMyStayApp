@@ -13,33 +13,51 @@ This project focuses on strengthening:
 
 ---
 
-# 🚀 Use Case 6 (UC6) – Booking Allocation System
+# 🧾 Use Case 6 (UC6) – Booking Confirmation & Safe Allocation
 
 ## 🎯 Goal
-Process booking requests safely while preventing double-booking and maintaining inventory consistency.
+Ensure safe room allocation while preventing double booking and maintaining inventory consistency.
 
-## 🧠 Key Concepts
+---
 
-### 🔹 Queue Processing (FIFO)
-Requests are processed in arrival order.
+## 🧠 Problem Solved
+Without controlled allocation:
+- Same room may be assigned multiple times
+- Inventory becomes inconsistent
 
-### 🔹 Set for Uniqueness
-Each room ID is stored in a `Set` to prevent duplicates.
+---
 
-### 🔹 HashMap Mapping
-Room Type → Set of allocated Room IDs.
+## 🧩 Key Concepts Used
 
-### 🔹 Inventory Synchronization
-Inventory is updated immediately after booking.
+### 🔹 Set (Uniqueness)
+Ensures no duplicate room IDs.
+
+### 🔹 HashMap + Set
+Tracks:
+Room Type → Allocated Room IDs
+
+### 🔹 FIFO Processing
+Requests are processed in order from the queue.
 
 ### 🔹 Atomic Allocation
 Room assignment + inventory update happen together.
 
-## ✅ Features
-- Prevents double booking
-- Ensures unique room IDs
-- Handles unavailable rooms gracefully
-- Maintains consistent system state
+---
+
+## 🔄 Flow
+1. Dequeue booking request
+2. Check availability
+3. Generate unique room ID
+4. Assign room
+5. Update inventory
+6. Confirm booking
+
+---
+
+## ✅ Outcome
+- No double booking
+- Consistent inventory
+- Fair processing (FIFO)
 
 ## 🚀 Scalability
 
