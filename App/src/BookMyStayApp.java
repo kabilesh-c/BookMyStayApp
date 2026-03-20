@@ -1,27 +1,23 @@
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * BookMyStayApp
  *
- * UC3 - Centralized Inventory Management using HashMap
+ * UC4 - Room Search System (Read-Only)
  *
  * Demonstrates:
- * - HashMap for centralized state management
- * - O(1) lookup complexity
+ * - Read-only search operations
  * - Separation of concerns
- * - Encapsulation of inventory logic
+ * - Inventory as state holder
+ * - Filtering unavailable rooms
  *
  * @author Kabilesh C
- * @version 1.2.0
+ * @version 1.3.0
  */
 
-/* ==============================
-   DOMAIN MODEL (Room Hierarchy)
-   ============================== */
+/* ============================== DOMAIN MODEL ============================== */
 
 abstract class Room {
-
     private String roomType;
     private int numberOfBeds;
     private double sizeInSqFt;
@@ -38,11 +34,19 @@ abstract class Room {
         return roomType;
     }
 
+    public int getBeds() {
+        return numberOfBeds;
+    }
+
+    public double getPrice() {
+        return pricePerNight;
+    }
+
     public void displayRoomDetails() {
-        System.out.println("Room Type    : " + roomType);
-        System.out.println("Beds         : " + numberOfBeds);
-        System.out.println("Size (sq.ft) : " + sizeInSqFt);
-        System.out.println("Price/Night  : $" + pricePerNight);
+        System.out.println("Room Type : " + roomType);
+        System.out.println("Beds      : " + numberOfBeds);
+        System.out.println("Size      : " + sizeInSqFt + " sq.ft");
+        System.out.println("Price     : $" + pricePerNight);
     }
 }
 
@@ -64,56 +68,74 @@ class SuiteRoom extends Room {
     }
 }
 
-/* ==============================
-   INVENTORY MANAGEMENT
-   ============================== */
+/* ============================== INVENTORY ============================== */
 
 class RoomInventory {
 
-    // Single Source of Truth
     private Map<String, Integer> availabilityMap;
 
     public RoomInventory() {
         availabilityMap = new HashMap<>();
     }
 
-    // Register room type with initial count
     public void registerRoom(String roomType, int count) {
         availabilityMap.put(roomType, count);
     }
 
-    // Retrieve availability (O(1) average time)
     public int getAvailability(String roomType) {
         return availabilityMap.getOrDefault(roomType, 0);
     }
 
-    // Controlled update
-    public void updateAvailability(String roomType, int newCount) {
-        if (availabilityMap.containsKey(roomType)) {
-            availabilityMap.put(roomType, newCount);
-        } else {
-            System.out.println("Room type not found in inventory.");
-        }
-    }
-
-    // Display entire inventory
     public void displayInventory() {
-        System.out.println("====== Current Room Inventory ======");
+        System.out.println("====== Current Inventory ======");
         for (Map.Entry<String, Integer> entry : availabilityMap.entrySet()) {
-            System.out.println(entry.getKey() + " -> Available: " + entry.getValue());
+            System.out.println(entry.getKey() + " -> " + entry.getValue());
         }
-        System.out.println("=====================================\n");
+        System.out.println("===============================\n");
     }
 }
 
-/* ==============================
-   APPLICATION ENTRY POINT
-   ============================== */
+/* ============================== SEARCH SERVICE (UC4) ============================== */
+
+class SearchService {
+
+    private RoomInventory inventory;
+    private List<Room> rooms;
+
+    public SearchService(RoomInventory inventory, List<Room> rooms) {
+        this.inventory = inventory;
+        this.rooms = rooms;
+    }
+
+    /**
+     * Read-only search (NO modification)
+     */
+    public void searchAvailableRooms() {
+
+        System.out.println("\n===== AVAILABLE ROOMS =====");
+
+        for (Room room : rooms) {
+
+            int available = inventory.getAvailability(room.getRoomType());
+
+            // Filter unavailable rooms
+            if (available > 0) {
+                System.out.println("----------------------------");
+                room.displayRoomDetails();
+                System.out.println("Available : " + available);
+            }
+        }
+
+        System.out.println("===========================\n");
+    }
+}
+
+/* ============================== MAIN APPLICATION ============================== */
 
 public class BookMyStayApp {
 
     private static final String APP_NAME = "BookMyStayApp";
-    private static final String VERSION = "1.2.0";
+    private static final String VERSION = "1.3.0";
 
     public static void main(String[] args) {
 
@@ -127,27 +149,24 @@ public class BookMyStayApp {
         Room doubleRoom = new DoubleRoom();
         Room suite = new SuiteRoom();
 
+        List<Room> rooms = new ArrayList<>();
+        rooms.add(single);
+        rooms.add(doubleRoom);
+        rooms.add(suite);
+
         // Initialize Inventory
         RoomInventory inventory = new RoomInventory();
-
         inventory.registerRoom(single.getRoomType(), 5);
         inventory.registerRoom(doubleRoom.getRoomType(), 3);
-        inventory.registerRoom(suite.getRoomType(), 2);
+        inventory.registerRoom(suite.getRoomType(), 0); // simulate unavailable
 
-        // Display Room Details
-        single.displayRoomDetails();
-        System.out.println("Available: " + inventory.getAvailability(single.getRoomType()));
-        System.out.println();
+        // UC4: Search Service (READ ONLY)
+        SearchService searchService = new SearchService(inventory, rooms);
 
-        doubleRoom.displayRoomDetails();
-        System.out.println("Available: " + inventory.getAvailability(doubleRoom.getRoomType()));
-        System.out.println();
+        // Perform Search
+        searchService.searchAvailableRooms();
 
-        suite.displayRoomDetails();
-        System.out.println("Available: " + inventory.getAvailability(suite.getRoomType()));
-        System.out.println();
-
-        // Display centralized inventory state
+        // Inventory remains unchanged
         inventory.displayInventory();
 
         System.out.println("Application Terminated Successfully.");
