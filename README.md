@@ -13,73 +13,49 @@ This project focuses on strengthening:
 
 ---
 
-# 🔍 Use Case 4 (UC4) – Room Search System (Read-Only)
+---
+
+# 📥 Use Case 5 (UC5) – Booking Request Queue
 
 ## 🎯 Goal
-Enable guests to view available rooms and their details without modifying system state, ensuring safe data access and clear separation of responsibilities.
+Handle multiple booking requests fairly using a queue system that preserves request order.
 
 ---
 
 ## 🔄 Flow
 
-- Guest initiates a room search
-- System retrieves availability from inventory
-- Room details are fetched from Room objects
-- Unavailable rooms are filtered out
-- Available rooms are displayed
-- System state remains unchanged
+- Guest submits booking request
+- Request is added to queue
+- Requests stored in arrival order
+- Queue waits for processing
+- No inventory updates
 
 ---
 
 ## 🧠 Key Concepts Used
 
-### 🔹 Read-Only Access
-Search operations only retrieve data and do not modify inventory.
+### 🔹 Queue (FIFO)
+First request → First processed
 
-### 🔹 Defensive Programming
-Filters out rooms with zero availability to ensure valid output.
+### 🔹 Fairness
+Ensures no request skips another
 
-### 🔹 Separation of Concerns
-- SearchService → Handles search logic
-- Inventory → Manages availability
-- Room → Defines room details
+### 🔹 Decoupling
+Request intake separated from allocation logic
 
-### 🔹 Inventory as State Holder
-Inventory is accessed only for reading availability data.
-
-### 🔹 Domain Model Usage
-Room objects provide pricing and details without duplicating data.
-
-### 🔹 Validation Logic
-Only rooms with availability > 0 are shown.
+### 🔹 Ordering Guarantee
+Queue maintains insertion order automatically
 
 ---
 
 ## ✅ Key Requirements Implemented
 
-- Retrieve availability from centralized inventory
-- Display only available rooms
-- Show room details using Room objects
-- No modification of inventory during search
-- Clear separation between search and booking logic
+- Accept booking requests
+- Store using Queue<Reservation>
+- Maintain FIFO order
+- No inventory mutation
 
 ---
-
-## 📌 Example Output
-===== AVAILABLE ROOMS =====
-
-Room Type : Single Room
-Beds : 1
-Price : $120.0
-Available : 5
-
-Room Type : Double Room
-Beds : 2
-Price : $200.0
-Available : 3
-
-===========================
-
 
 ---
 
