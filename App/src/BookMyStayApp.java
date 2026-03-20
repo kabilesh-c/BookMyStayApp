@@ -4,19 +4,13 @@ import java.util.*;
  * BookMyStayApp
  *
  * UC4 - Room Search System (Read-Only)
- *
- * Demonstrates:
- * - Read-only search operations
- * - Separation of concerns
- * - Inventory as state holder
- * - Filtering unavailable rooms
+ * UC5 - Booking Request Queue (FIFO)
  *
  * @author Kabilesh C
- * @version 1.3.0
+ * @version 1.4.0
  */
 
 /* ============================== DOMAIN MODEL ============================== */
-
 abstract class Room {
     private String roomType;
     private int numberOfBeds;
@@ -44,9 +38,9 @@ abstract class Room {
 
     public void displayRoomDetails() {
         System.out.println("Room Type : " + roomType);
-        System.out.println("Beds      : " + numberOfBeds);
-        System.out.println("Size      : " + sizeInSqFt + " sq.ft");
-        System.out.println("Price     : $" + pricePerNight);
+        System.out.println("Beds : " + numberOfBeds);
+        System.out.println("Size : " + sizeInSqFt + " sq.ft");
+        System.out.println("Price : $" + pricePerNight);
     }
 }
 
@@ -69,9 +63,7 @@ class SuiteRoom extends Room {
 }
 
 /* ============================== INVENTORY ============================== */
-
 class RoomInventory {
-
     private Map<String, Integer> availabilityMap;
 
     public RoomInventory() {
@@ -96,9 +88,7 @@ class RoomInventory {
 }
 
 /* ============================== SEARCH SERVICE (UC4) ============================== */
-
 class SearchService {
-
     private RoomInventory inventory;
     private List<Room> rooms;
 
@@ -107,18 +97,12 @@ class SearchService {
         this.rooms = rooms;
     }
 
-    /**
-     * Read-only search (NO modification)
-     */
     public void searchAvailableRooms() {
-
         System.out.println("\n===== AVAILABLE ROOMS =====");
 
         for (Room room : rooms) {
-
             int available = inventory.getAvailability(room.getRoomType());
 
-            // Filter unavailable rooms
             if (available > 0) {
                 System.out.println("----------------------------");
                 room.displayRoomDetails();
@@ -130,12 +114,57 @@ class SearchService {
     }
 }
 
+/* ============================== UC5: BOOKING QUEUE ============================== */
+
+class Reservation {
+    private String guestName;
+    private String roomType;
+
+    public Reservation(String guestName, String roomType) {
+        this.guestName = guestName;
+        this.roomType = roomType;
+    }
+
+    public void display() {
+        System.out.println("Guest: " + guestName + " | Requested: " + roomType);
+    }
+}
+
+class BookingQueue {
+    private Queue<Reservation> queue;
+
+    public BookingQueue() {
+        queue = new LinkedList<>();
+    }
+
+    public void addRequest(Reservation reservation) {
+        queue.offer(reservation);
+        System.out.println("Request Added:");
+        reservation.display();
+    }
+
+    public void displayQueue() {
+        System.out.println("\n===== BOOKING REQUEST QUEUE =====");
+
+        if (queue.isEmpty()) {
+            System.out.println("No pending requests.");
+            return;
+        }
+
+        for (Reservation r : queue) {
+            r.display();
+        }
+
+        System.out.println("=================================\n");
+    }
+}
+
 /* ============================== MAIN APPLICATION ============================== */
 
 public class BookMyStayApp {
 
     private static final String APP_NAME = "BookMyStayApp";
-    private static final String VERSION = "1.3.0";
+    private static final String VERSION = "1.4.0";
 
     public static void main(String[] args) {
 
@@ -158,13 +187,23 @@ public class BookMyStayApp {
         RoomInventory inventory = new RoomInventory();
         inventory.registerRoom(single.getRoomType(), 5);
         inventory.registerRoom(doubleRoom.getRoomType(), 3);
-        inventory.registerRoom(suite.getRoomType(), 0); // simulate unavailable
+        inventory.registerRoom(suite.getRoomType(), 0);
 
-        // UC4: Search Service (READ ONLY)
+        // UC4: Search
         SearchService searchService = new SearchService(inventory, rooms);
-
-        // Perform Search
         searchService.searchAvailableRooms();
+
+        // ================= UC5: Booking Request Queue =================
+        BookingQueue bookingQueue = new BookingQueue();
+
+        System.out.println("---- Adding Booking Requests ----");
+
+        bookingQueue.addRequest(new Reservation("Alice", "Single Room"));
+        bookingQueue.addRequest(new Reservation("Bob", "Double Room"));
+        bookingQueue.addRequest(new Reservation("Charlie", "Suite Room"));
+
+        bookingQueue.displayQueue();
+        // =============================================================
 
         // Inventory remains unchanged
         inventory.displayInventory();
