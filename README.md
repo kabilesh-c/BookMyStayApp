@@ -13,7 +13,7 @@ This project focuses on strengthening:
 
 ---
 
-# 🧾 Use Case 6 (UC6) – Booking Confirmation & Safe Allocation
+# 🧾 Use Case 7 (UC7) – Booking Confirmation & Safe Allocation
 
 ## 🎯 Goal
 Ensure safe room allocation while preventing double booking and maintaining inventory consistency.
