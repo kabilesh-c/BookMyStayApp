@@ -13,51 +13,33 @@ This project focuses on strengthening:
 
 ---
 
----
-
-# 📥 Use Case 5 (UC5) – Booking Request Queue
+# 🚀 Use Case 6 (UC6) – Booking Allocation System
 
 ## 🎯 Goal
-Handle multiple booking requests fairly using a queue system that preserves request order.
+Process booking requests safely while preventing double-booking and maintaining inventory consistency.
 
----
+## 🧠 Key Concepts
 
-## 🔄 Flow
+### 🔹 Queue Processing (FIFO)
+Requests are processed in arrival order.
 
-- Guest submits booking request
-- Request is added to queue
-- Requests stored in arrival order
-- Queue waits for processing
-- No inventory updates
+### 🔹 Set for Uniqueness
+Each room ID is stored in a `Set` to prevent duplicates.
 
----
+### 🔹 HashMap Mapping
+Room Type → Set of allocated Room IDs.
 
-## 🧠 Key Concepts Used
+### 🔹 Inventory Synchronization
+Inventory is updated immediately after booking.
 
-### 🔹 Queue (FIFO)
-First request → First processed
+### 🔹 Atomic Allocation
+Room assignment + inventory update happen together.
 
-### 🔹 Fairness
-Ensures no request skips another
-
-### 🔹 Decoupling
-Request intake separated from allocation logic
-
-### 🔹 Ordering Guarantee
-Queue maintains insertion order automatically
-
----
-
-## ✅ Key Requirements Implemented
-
-- Accept booking requests
-- Store using Queue<Reservation>
-- Maintain FIFO order
-- No inventory mutation
-
----
-
----
+## ✅ Features
+- Prevents double booking
+- Ensures unique room IDs
+- Handles unavailable rooms gracefully
+- Maintains consistent system state
 
 ## 🚀 Scalability
 
