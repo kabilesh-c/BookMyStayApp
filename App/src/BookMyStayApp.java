@@ -3,20 +3,18 @@ import java.util.*;
 /**
  * BookMyStayApp
  *
- * UC6 - Booking Allocation System
+ * UC4 + UC5 + UC6 Combined
  *
- * Demonstrates:
- * - FIFO Queue Processing
- * - Unique Room Allocation using Set
- * - Inventory Synchronization
- * - Prevention of Double Booking
+ * Features:
+ * - UC4: Read-only Room Search
+ * - UC5: Booking Request Queue (FIFO)
+ * - UC6: Safe Booking Allocation (No Double Booking)
  *
  * @author Kabilesh C
  * @version 1.5.0
  */
 
 /* ============================== DOMAIN MODEL ============================== */
-
 abstract class Room {
     private String roomType;
     private int beds;
@@ -50,7 +48,6 @@ class SuiteRoom extends Room {
 }
 
 /* ============================== INVENTORY ============================== */
-
 class RoomInventory {
     private Map<String, Integer> map = new HashMap<>();
 
@@ -74,8 +71,7 @@ class RoomInventory {
     }
 }
 
-/* ============================== UC4 SEARCH ============================== */
-
+/* ============================== UC4: SEARCH ============================== */
 class SearchService {
     private RoomInventory inventory;
     private List<Room> rooms;
@@ -85,9 +81,9 @@ class SearchService {
         this.rooms = rooms;
     }
 
+    // READ ONLY (no modification)
     public void search() {
         System.out.println("\n=== Available Rooms ===");
-
         for (Room room : rooms) {
             int available = inventory.getAvailability(room.getRoomType());
 
@@ -100,8 +96,7 @@ class SearchService {
     }
 }
 
-/* ============================== UC5 QUEUE ============================== */
-
+/* ============================== UC5: QUEUE ============================== */
 class Reservation {
     String name;
     String roomType;
@@ -113,9 +108,9 @@ class Reservation {
 }
 
 class BookingQueue {
-    Queue<Reservation> queue = new LinkedList<>();
+    private Queue<Reservation> queue = new LinkedList<>();
 
-    public void add(Reservation r) {
+    public void addRequest(Reservation r) {
         queue.offer(r);
     }
 
@@ -126,27 +121,31 @@ class BookingQueue {
     public boolean isEmpty() {
         return queue.isEmpty();
     }
+
+    public void displayQueue() {
+        System.out.println("\n=== Booking Queue ===");
+        for (Reservation r : queue) {
+            System.out.println(r.name + " -> " + r.roomType);
+        }
+    }
 }
 
-/* ============================== UC6 BOOKING SERVICE ============================== */
-
+/* ============================== UC6: BOOKING SERVICE ============================== */
 class BookingService {
 
     private RoomInventory inventory;
 
-    // roomType → assigned roomIds
+    // roomType → allocated roomIds
     private Map<String, Set<String>> allocatedRooms = new HashMap<>();
 
     public BookingService(RoomInventory inventory) {
         this.inventory = inventory;
     }
 
-    public void process(BookingQueue queue) {
-
+    public void processBookings(BookingQueue queue) {
         System.out.println("\n=== PROCESSING BOOKINGS ===");
 
         while (!queue.isEmpty()) {
-
             Reservation r = queue.next();
 
             int available = inventory.getAvailability(r.roomType);
@@ -159,10 +158,10 @@ class BookingService {
             // Generate unique room ID
             String roomId = generateRoomId(r.roomType);
 
-            // Ensure set exists
+            // Ensure Set exists
             allocatedRooms.putIfAbsent(r.roomType, new HashSet<>());
 
-            // Prevent duplicate (Set ensures uniqueness)
+            // Add (Set prevents duplicates)
             allocatedRooms.get(r.roomType).add(roomId);
 
             // Update inventory
@@ -175,45 +174,49 @@ class BookingService {
     }
 
     private String generateRoomId(String roomType) {
-        return roomType.substring(0, 2).toUpperCase() + "-" + UUID.randomUUID().toString().substring(0, 5);
+        return roomType.substring(0, 2).toUpperCase() +
+                "-" + UUID.randomUUID().toString().substring(0, 5);
     }
 }
 
 /* ============================== MAIN ============================== */
-
 public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("BookMyStayApp v1.5");
+        System.out.println("===== BookMyStayApp v1.5 =====");
 
-        // Rooms
+        // Create Rooms
         List<Room> rooms = Arrays.asList(
                 new SingleRoom(),
                 new DoubleRoom(),
                 new SuiteRoom()
         );
 
-        // Inventory
+        // Initialize Inventory
         RoomInventory inventory = new RoomInventory();
         inventory.addRoom("Single Room", 2);
         inventory.addRoom("Double Room", 1);
         inventory.addRoom("Suite Room", 0);
 
-        // Search (UC4)
-        new SearchService(inventory, rooms).search();
+        // UC4: SEARCH
+        SearchService searchService = new SearchService(inventory, rooms);
+        searchService.search();
 
-        // Queue (UC5)
+        // UC5: QUEUE
         BookingQueue queue = new BookingQueue();
-        queue.add(new Reservation("Alice", "Single Room"));
-        queue.add(new Reservation("Bob", "Single Room"));
-        queue.add(new Reservation("Charlie", "Single Room"));
-        queue.add(new Reservation("David", "Suite Room"));
+        queue.addRequest(new Reservation("Alice", "Single Room"));
+        queue.addRequest(new Reservation("Bob", "Single Room"));
+        queue.addRequest(new Reservation("Charlie", "Single Room"));
+        queue.addRequest(new Reservation("David", "Suite Room"));
 
-        // UC6 Processing
-        BookingService service = new BookingService(inventory);
-        service.process(queue);
+        queue.displayQueue();
 
+        // UC6: PROCESS BOOKINGS
+        BookingService bookingService = new BookingService(inventory);
+        bookingService.processBookings(queue);
+
+        // Final Inventory
         inventory.display();
 
         System.out.println("\nDone.");
