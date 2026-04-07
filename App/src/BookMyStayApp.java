@@ -3,7 +3,7 @@ import java.util.*;
 /**
  * BookMyStayApp
  *
- * UC4 + UC5 + UC6 + UC7 + UC8 Combined
+ * UC4 + UC5 + UC6 + UC7 + UC8 + UC9 + UC10 Combined
  *
  * Features:
  * - UC4: Read-only Room Search
@@ -11,9 +11,11 @@ import java.util.*;
  * - UC6: Safe Booking Allocation (No Double Booking)
  * - UC7: Booking Confirmation & Safe Allocation
  * - UC8: Booking History & Reporting (Historical Tracking)
+ * - UC9: Error Handling & Validation
+ * - UC10: Booking Cancellation & Inventory Rollback (LIFO Rollback)
  *
  * @author Kabilesh C
- * @version 1.6.0
+ * @version 1.10.0
  */
 
 /* ============================== DOMAIN MODEL ============================== */
@@ -230,6 +232,23 @@ public class BookMyStayApp {
         
         reportService.generateSummaryReport(history);
         reportService.generateTypeBasedReport(history);
+
+        // UC10: BOOKING CANCELLATION & ROLLBACK
+        System.out.println("\n===== UC10: BOOKING CANCELLATION & ROLLBACK =====");
+        CancellationService cancellationService = new CancellationService(inventory, history);
+        
+        try {
+            // Cancel Alice's booking
+            cancellationService.cancelBooking("Alice", "Single Room");
+            
+            // Try to cancel a non-existent booking
+            cancellationService.cancelBooking("Xavier", "Double Room");
+        } catch (BookingException e) {
+            System.out.println("Wait! " + e.getMessage());
+        }
+
+        // Display Rollback History
+        cancellationService.displayRollbackHistory();
 
         // Final Inventory
         inventory.display();
