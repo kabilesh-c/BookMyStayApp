@@ -13,67 +13,74 @@ This project focuses on strengthening:
 
 ---
 
-# 🧾 Use Case 8 (UC8) – Booking History & Reporting
+# 🧾 Use Case 9 (UC9) – Error Handling & Validation
 
 ## 🎯 Goal
-Introduce historical tracking of confirmed bookings to provide operational visibility, enable audits, and support reporting.
+Strengthen system reliability by introducing structured validation and error handling, ensuring that invalid inputs and inconsistent states are detected and handled early.
 
 ---
 
 ## 🧠 Problem Solved
-Without historical tracking:
-- No record of past successful bookings
-- Admins cannot perform audits or view usage trends
-- Loss of operational visibility once the processing is complete
+Without structured error handling:
+- Invalid room types could enter the system.
+- Empty guest names could be processed.
+- Inventory could reach inconsistent states.
+- Support for complex debugging was limited due to lack of explicit error messages.
 
 ---
 
 ## 🧩 Key Concepts Used
 
-### 🔹 List Data Structure (ArrayList)
-Used to store confirmed reservations while preserving the chronological insertion order.
+### 🔹 Custom Exceptions (`BookingException`)
+Domain-specific exceptions represent invalid booking scenarios explicitly, improving readability and error tracing.
 
-### 🔹 Historical Tracking (Audit Trail)
-Confirmed bookings are moved to a separate storage to form an audit trail for later review.
+### 🔹 Fail-Fast Design
+The system detects errors (like invalid room types or empty names) at the start of the processing loop, preventing wasted resources and cascading failures.
 
-### 🔹 Separation of Storage and Reporting
-Decoupled logic: `BookingService` handles storage into history, while a dedicated `BookingReportService` handles report generation.
+### 🔹 Input Validation
+Guarding the system from processing corrupted or incomplete `Reservation` objects.
 
-### 🔹 Persistence Mindset
-Even with in-memory storage, treating data as persistent prepares the foundation for future database integration.
+### 🔹 Graceful Failure Handling
+Try-catch blocks allow the system to report a failure for one request and move safely to the next without crashing.
 
 ---
 
 ## 🏗 Folder Structure
-The folder structure has been updated with a new core class:
+The folder structure has been updated with new core classes:
 ```
 App/
   src/
-    BookingReportService.java   (New Reporting Logic)
+    BookingException.java       (Custom Exception)
+    BookingValidator.java       (Business Logic Validation)
     BookingQueue.java
-    BookingService.java         (Updated to maintain History)
-    BookMyStayApp.java
-    Reservation.java
-    SearchService.java
+    BookingService.java         (Updated to use Validator)
+    BookMyStayApp.java          (Integrated UC9 flow)
+    ...
 ```
 
 ---
 
 ## 🔄 Flow
-1. Booking is successfully confirmed in `BookingService`.
-2. The confirmed reservation is automatically added to the internal **Booking History**.
-3. Admin requests a report via `BookingReportService`.
-4. Summary and type-based reports are generated from the stored history.
+1. Booking request is pulled from the queue.
+2. `BookingValidator` checks:
+   - Is the reservation object valid?
+   - Is the guest name provided?
+   - Is the room type supported?
+   - Is there enough inventory?
+3. If any check fails, a `BookingException` is thrown.
+4. `BookingService` catches the exception and displays a meaningful error message.
+5. The loop continues to the next reservation request.
 
 ---
 
 ## ✅ Outcome
-- Clear visibility into system usage.
-- Audit readiness for tracking all historical transactions.
-- Clean separation of concerns between processing and reporting.
+- Early detection of invalid inputs.
+- Robust inventory management preventing negative values.
+- Informative feedback for administrators and guests.
+- System stability maintained even under unexpected input conditions.
 
 ## 🚀 Scalability
-Additional reports (e.g., revenue-based) can be added to `BookingReportService` without affecting the core booking flow.
+New validation rules (e.g., age checks, payment verification) can be added to `BookingValidator` without modifying the core allocation logic in `BookingService`.
 
 ## 🧠 Key Concepts Used
 
