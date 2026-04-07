@@ -10,10 +10,14 @@ class BookingService {
     // Track room allocations per type
     private Map<String, Set<String>> roomAllocations;
 
+    // UC8: Booking History
+    private List<Reservation> bookingHistory;
+
     public BookingService(RoomInventory inventory) {
         this.inventory = inventory;
         this.allocatedRoomIds = new HashSet<>();
         this.roomAllocations = new HashMap<>();
+        this.bookingHistory = new ArrayList<>();
     }
 
     public void processBookings(BookingQueue queue) {
@@ -43,6 +47,9 @@ class BookingService {
                 // update inventory immediately
                 inventory.updateAvailability(roomType, available - 1);
 
+                // UC8: ADD TO BOOKING HISTORY
+                bookingHistory.add(reservation);
+
                 System.out.println("Booking CONFIRMED for "
                         + reservation.getGuestName()
                         + " | Room: " + roomType
@@ -56,6 +63,10 @@ class BookingService {
         }
 
         System.out.println("================================\n");
+    }
+
+    public List<Reservation> getBookingHistory() {
+        return bookingHistory;
     }
 
     private String generateRoomId(String roomType) {
