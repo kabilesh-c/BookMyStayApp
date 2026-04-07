@@ -257,6 +257,33 @@ public class BookMyStayApp {
         // Display Rollback History
         cancellationService.displayRollbackHistory();
 
+        // UC11: CONCURRENT BOOKING SIMULATION
+        System.out.println("\n===== UC11: CONCURRENT BOOKING SIMULATION =====");
+        inventory.addRoom("Single Room", 2); // Reset for simulation
+        
+        BookingQueue concurrentQueue = new BookingQueue();
+        Thread t1 = new Thread(() -> {
+            concurrentQueue.addRequest(new Reservation("Concurrent_Alice", "Single Room"));
+            concurrentQueue.addRequest(new Reservation("Concurrent_Bob", "Single Room"));
+            bookingService.processBookings(concurrentQueue);
+        });
+
+        Thread t2 = new Thread(() -> {
+            concurrentQueue.addRequest(new Reservation("Concurrent_Charlie", "Single Room"));
+            concurrentQueue.addRequest(new Reservation("Concurrent_David", "Single Room"));
+            bookingService.processBookings(concurrentQueue);
+        });
+
+        t1.start();
+        t2.start();
+
+        try {
+            t1.join();
+            t2.join();
+        } catch (InterruptedException e) {
+            System.err.println("Simulation interrupted.");
+        }
+
         // Final Inventory
         inventory.display();
 
