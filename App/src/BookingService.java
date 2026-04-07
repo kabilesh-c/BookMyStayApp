@@ -13,11 +13,17 @@ class BookingService {
     // UC8: Booking History
     private List<Reservation> bookingHistory;
 
-    public BookingService(RoomInventory inventory) {
+    // UC9: Validator
+    private BookingValidator validator;
+    private List<String> validRoomTypes;
+
+    public BookingService(RoomInventory inventory, List<String> validRoomTypes) {
         this.inventory = inventory;
         this.allocatedRoomIds = new HashSet<>();
         this.roomAllocations = new HashMap<>();
         this.bookingHistory = new ArrayList<>();
+        this.validator = new BookingValidator();
+        this.validRoomTypes = validRoomTypes;
     }
 
     public void processBookings(BookingQueue queue) {
@@ -26,11 +32,13 @@ class BookingService {
         while (!queue.isEmpty()) {
             Reservation reservation = queue.pollRequest();
 
-            String roomType = reservation.getRoomType();
+            try {
+                // UC9: VALIDATE BEFORE PROCESSING
+                validator.validate(reservation, inventory, validRoomTypes);
 
-            int available = inventory.getAvailability(roomType);
+                String roomType = reservation.getRoomType();
+                int available = inventory.getAvailability(roomType);
 
-            if (available > 0) {
                 String roomId = generateRoomId(roomType);
 
                 // ensure uniqueness
@@ -55,10 +63,9 @@ class BookingService {
                         + " | Room: " + roomType
                         + " | Room ID: " + roomId);
 
-            } else {
-                System.out.println("Booking FAILED for "
-                        + reservation.getGuestName()
-                        + " | No rooms available for " + roomType);
+            } catch (BookingException e) {
+                // UC9: GRACEFUL ERROR HANDLING
+                System.out.println("Booking REJECTED: " + e.getMessage());
             }
         }
 

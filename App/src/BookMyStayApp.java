@@ -211,11 +211,16 @@ public class BookMyStayApp {
         queue.addRequest(new Reservation("Bob", "Single Room"));
         queue.addRequest(new Reservation("Charlie", "Single Room"));
         queue.addRequest(new Reservation("David", "Suite Room"));
+        
+        // UC9: INVALID INPUTS for validation test
+        queue.addRequest(new Reservation("", "Single Room")); // Empty name
+        queue.addRequest(new Reservation("Eve", "Penthouse")); // Unsupported room type
 
         queue.displayQueue();
 
-        // UC6: PROCESS BOOKINGS
-        BookingService bookingService = new BookingService(inventory);
+        // UC6: PROCESS BOOKINGS (Now with UC9 Validation)
+        List<String> validTypes = Arrays.asList("Single Room", "Double Room", "Suite Room");
+        BookingService bookingService = new BookingService(inventory, validTypes);
         bookingService.processBookings(queue);
 
         // UC8: BOOKING HISTORY & REPORTING
