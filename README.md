@@ -13,74 +13,70 @@ This project focuses on strengthening:
 
 ---
 
-# 🧾 Use Case 9 (UC9) – Error Handling & Validation
+# 🧾 Use Case 10 (UC10) – Booking Cancellation & Inventory Rollback
 
 ## 🎯 Goal
-Strengthen system reliability by introducing structured validation and error handling, ensuring that invalid inputs and inconsistent states are detected and handled early.
+Enable safe cancellation of confirmed bookings by correctly reversing system state changes, ensuring inventory consistency and predictable recovery behavior.
 
 ---
 
 ## 🧠 Problem Solved
-Without structured error handling:
-- Invalid room types could enter the system.
-- Empty guest names could be processed.
-- Inventory could reach inconsistent states.
-- Support for complex debugging was limited due to lack of explicit error messages.
+Without cancellation logic:
+- Confirmed bookings were final and could not be undone.
+- Inventory would remain depleted even if a guest decided not to stay.
+- System state could become inconsistent if attempted manually.
 
 ---
 
 ## 🧩 Key Concepts Used
 
-### 🔹 Custom Exceptions (`BookingException`)
-Domain-specific exceptions represent invalid booking scenarios explicitly, improving readability and error tracing.
+### 🔹 Stack Data Structure (LIFO)
+Used to track released room IDs. Stacks are ideal for rollback operations because they naturally reverse the last action performed.
 
-### 🔹 Fail-Fast Design
-The system detects errors (like invalid room types or empty names) at the start of the processing loop, preventing wasted resources and cascading failures.
+### 🔹 State Reversal (Rollback)
+The system performs a controlled sequence of operations to undo a booking: updating reservation status, logging the released ID, and incrementing inventory.
 
-### 🔹 Input Validation
-Guarding the system from processing corrupted or incomplete `Reservation` objects.
+### 🔹 Controlled Mutation
+State changes are performed in a strict order to prevent partial successes that could leave the system in an invalid state.
 
-### 🔹 Graceful Failure Handling
-Try-catch blocks allow the system to report a failure for one request and move safely to the next without crashing.
+### 🔹 Inventory Restoration
+Inventory counts are accurately incremented immediately, making the room available for future searches and bookings.
 
 ---
 
 ## 🏗 Folder Structure
-The folder structure has been updated with new core classes:
+The folder structure has been updated with a new core class:
 ```
 App/
   src/
-    BookingException.java       (Custom Exception)
-    BookingValidator.java       (Business Logic Validation)
+    CancellationService.java    (Cancellation & Rollback Logic)
+    BookingReportService.java
     BookingQueue.java
-    BookingService.java         (Updated to use Validator)
-    BookMyStayApp.java          (Integrated UC9 flow)
-    ...
+    BookingService.java
+    BookMyStayApp.java
+    Reservation.java            (Updated for Cancel Status)
+    SearchService.java
 ```
 
 ---
 
 ## 🔄 Flow
-1. Booking request is pulled from the queue.
-2. `BookingValidator` checks:
-   - Is the reservation object valid?
-   - Is the guest name provided?
-   - Is the room type supported?
-   - Is there enough inventory?
-3. If any check fails, a `BookingException` is thrown.
-4. `BookingService` catches the exception and displays a meaningful error message.
-5. The loop continues to the next reservation request.
+1. Guest initiates a cancellation request.
+2. `CancellationService` validates that the reservation exists and is active.
+3. The reservation is marked as `cancelled`.
+4. The allocated `roomId` is pushed onto the **Rollback Stack**.
+5. Inventory count for that `roomType` is incremented.
+6. The system displays a confirmation of the state reversal.
 
 ---
 
 ## ✅ Outcome
-- Early detection of invalid inputs.
-- Robust inventory management preventing negative values.
-- Informative feedback for administrators and guests.
-- System stability maintained even under unexpected input conditions.
+- Full flexibility for guests to manage their bookings.
+- Perfect inventory accuracy through automated restoration.
+- Clear audit trail of released room IDs via the Rollback Stack.
 
 ## 🚀 Scalability
-New validation rules (e.g., age checks, payment verification) can be added to `BookingValidator` without modifying the core allocation logic in `BookingService`.
+The rollback logic can be extended to handle refunds or notification triggers when a cancellation occurs.
 
 ## 🧠 Key Concepts Used
 
