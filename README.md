@@ -13,66 +13,65 @@ This project focuses on strengthening:
 
 ---
 
-# 🧾 Use Case 11 (UC11) – Concurrent Booking Simulation
+# 💾 Use Case 12 (UC12) – Data Persistence & System Recovery
 
 ## 🎯 Goal
-Demonstrate how concurrent access to shared resources can lead to inconsistent system state and show how synchronization ensures correctness under multi-user conditions.
+Introduce persistence and recovery concepts using object serialization, transitioning the application from an in-memory-only model to a durable system design.
 
 ---
 
 ## 🧠 Problem Solved
-Without synchronization in a multi-threaded environment:
-- Multiple threads could decrement inventory simultaneously, leading to overbooking.
-- Race conditions would cause inconsistent state in shared queues and maps.
-- System reliability would fail under high traffic.
+Without persistence:
+- All room inventory and booking history was lost when the application was closed.
+- The system could not recover state after a crash or restart.
+- Manual data entry was required for each session.
 
 ---
 
 ## 🧩 Key Concepts Used
 
-### 🔹 Thread Safety
-Ensures that shared resources (Inventory, Queue) behave correctly when accessed by multiple threads simultaneously.
+### 🔹 Object Serialization
+Using `java.io.Serializable` to convert complex objects like `Reservation` into a byte stream for storage.
 
-### 🔹 synchronized Keywords
-Used to define critical sections where only one thread can execute at a time. This protects shared mutable state from corruption.
+### 🔹 File I/O (Binary)
+Saving and loading the entire `SystemState` snapshot using `ObjectOutputStream` and `ObjectInputStream`.
 
-### 🔹 Race Conditions & Critical Sections
-Identifying parts of the code where interleaving operations cause issues and wrapping them in protective locks.
+### 🔹 System Recovery Logic
+On startup, the app checks for existing `system_state.ser` files to restore the last known stable state of the inventory and history.
 
-### 🔹 Multithreading (Thread Class)
-Using `Thread` objects to simulate simultaneous booking requests from multiple users.
+### 🔹 Snapshot DTO Pattern
+Using a static inner class `SystemState` within `PersistenceService` to bundle multiple data structures (Map for inventory, List for history) into a single serializable unit.
 
 ---
 
 ## 🏗 Folder Structure
-The logic for UC11 is integrated into the core engine to demonstrate thread-safe state management:
+New service added to handle the serialization logic:
 ```
 App/
   src/
-    BookMyStayApp.java          (Integrated Concurrent Simulation)
-    BookingService.java         (Thread-safe logic)
-    BookingQueue.java           (Synchronized methods)
+    PersistenceService.java    (NEW - Handles Save/Load)
+    Reservation.java           (Modified - Implements Serializable)
+    BookMyStayApp.java         (Modified - Recovery Logic in Main)
     ...
 ```
 
 ---
 
 ## 🔄 Flow
-1. Multiple threads are spawned to represent different guests.
-2. Threads concurrently add requests to the `BookingQueue`.
-3. `BookingService` processes these requests using synchronized access to avoid race conditions.
-4. Inventory is decremented safely within a locked context.
-5. The final inventory matches the total number of processed bookings exactly.
+1. **Startup**: `BookMyStayApp` calls `PersistenceService.loadSystemState()`.
+2. **Recovery**: If a save file exists, the `RoomInventory` and `BookingService` history are restored.
+3. **Execution**: The app runs normally, performing searches, bookings, and cancellations.
+4. **Shutdown**: Before exit, `PersistenceService.saveSystemState()` is called to create a fresh snapshot of the final system state.
 
 ---
 
 ## ✅ Outcome
-- System remains consistent even under high load.
-- No race conditions or data corruption in the inventory.
-- Real-world readiness for handling multiple users simultaneously.
+- Data survives application restarts.
+- System state is consistently maintained across sessions.
+- Foundation for moving to a full-scale database (SQL/NoSQL) in the future.
 
-## 🚀 Scalability
-This foundation allows the application to be scaled to a web-based environment where many users interact with the same database.
+## 🚀 Durability
+The application is now capable of being used as a real-world tool where booking records must be permanently stored.
 
 ## 🧠 Key Concepts Used
 
