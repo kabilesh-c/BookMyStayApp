@@ -55,6 +55,10 @@ class SuiteRoom extends Room {
 class RoomInventory {
     private Map<String, Integer> map = new HashMap<>();
 
+    public synchronized Map<String, Integer> getMap() {
+        return new HashMap<>(map);
+    }
+
     public synchronized void addRoom(String type, int count) {
         map.put(type, count);
     }
@@ -195,7 +199,7 @@ public class BookMyStayApp {
 
     public static void main(String[] args) {
 
-        System.out.println("===== BookMyStayApp v1.5 =====");
+        System.out.println("===== BookMyStayApp v1.12 =====");
 
         // Create Rooms
         List<Room> rooms = Arrays.asList(
@@ -209,6 +213,19 @@ public class BookMyStayApp {
         inventory.addRoom("Single Room", 2);
         inventory.addRoom("Double Room", 1);
         inventory.addRoom("Suite Room", 0);
+
+        // UC9: VALID TYPES
+        List<String> validTypes = Arrays.asList("Single Room", "Double Room", "Suite Room");
+        BookingService bookingService = new BookingService(inventory, validTypes);
+
+        // UC12: INITIALIZE RECOVERY
+        PersistenceService.SystemState recoveredState = PersistenceService.loadSystemState();
+        if (recoveredState != null) {
+            // Restore inventory
+            recoveredState.getInventoryState().forEach(inventory::updateAvailability);
+            // Restore booking history and internal state
+            bookingService.setBookingHistory(recoveredState.getBookingHistory());
+        }
 
         // UC4: SEARCH
         SearchService searchService = new SearchService(inventory, rooms);
@@ -228,8 +245,6 @@ public class BookMyStayApp {
         queue.displayQueue();
 
         // UC6: PROCESS BOOKINGS (Now with UC9 Validation)
-        List<String> validTypes = Arrays.asList("Single Room", "Double Room", "Suite Room");
-        BookingService bookingService = new BookingService(inventory, validTypes);
         bookingService.processBookings(queue);
 
         // UC8: BOOKING HISTORY & REPORTING
@@ -259,7 +274,9 @@ public class BookMyStayApp {
 
         // UC11: CONCURRENT BOOKING SIMULATION
         System.out.println("\n===== UC11: CONCURRENT BOOKING SIMULATION =====");
-        inventory.addRoom("Single Room", 2); // Reset for simulation
+        // Note: For simulation purposes, we are NOT using the persistence data yet to avoid conflicts
+        RoomInventory concurrentInventory = new RoomInventory();
+        concurrentInventory.addRoom("Single Room", 2);
         
         BookingQueue concurrentQueue = new BookingQueue();
         Thread t1 = new Thread(() -> {
@@ -286,6 +303,10 @@ public class BookMyStayApp {
 
         // Final Inventory
         inventory.display();
+
+        // UC12: SAVE SYSTEM STATE BEFORE EXIT
+        System.out.println("\n===== UC12: DATA PERSISTENCE & SYSTEM RECOVERY =====");
+        PersistenceService.saveSystemState(inventory.getMap(), bookingService.getBookingHistory());
 
         System.out.println("\nDone.");
     }

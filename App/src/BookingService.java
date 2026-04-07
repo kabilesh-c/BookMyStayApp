@@ -77,6 +77,20 @@ class BookingService {
         return bookingHistory;
     }
 
+    // UC12: Restore booking history
+    public void setBookingHistory(List<Reservation> history) {
+        this.bookingHistory = new ArrayList<>(history);
+        // Also rebuild room allocations for internal state consistency
+        for (Reservation r : history) {
+            String rt = r.getRoomType();
+            String ri = r.getRoomId();
+            if (ri != null && !r.isCancelled()) {
+                roomAllocations.computeIfAbsent(rt, k -> new HashSet<>()).add(ri);
+                allocatedRoomIds.add(ri);
+            }
+        }
+    }
+
     private String generateRoomId(String roomType) {
         return roomType.substring(0, 2).toUpperCase() + "-" + UUID.randomUUID().toString().substring(0, 5);
     }
