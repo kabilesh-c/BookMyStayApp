@@ -56,6 +56,7 @@ class BookingService {
                 inventory.updateAvailability(roomType, available - 1);
 
                 // UC8: ADD TO BOOKING HISTORY
+                reservation.setRoomId(roomId);
                 bookingHistory.add(reservation);
 
                 System.out.println("Booking CONFIRMED for "
