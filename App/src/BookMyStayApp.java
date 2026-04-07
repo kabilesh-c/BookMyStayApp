@@ -55,19 +55,24 @@ class SuiteRoom extends Room {
 class RoomInventory {
     private Map<String, Integer> map = new HashMap<>();
 
-    public void addRoom(String type, int count) {
+    public synchronized void addRoom(String type, int count) {
         map.put(type, count);
     }
 
-    public int getAvailability(String type) {
+    public synchronized int getAvailability(String type) {
         return map.getOrDefault(type, 0);
     }
 
-    public void decrement(String type) {
+    public synchronized void decrement(String type) {
         map.put(type, map.get(type) - 1);
     }
 
-    public void display() {
+    // UC10 Addition for rollbacks
+    public synchronized void updateAvailability(String type, int count) {
+        map.put(type, count);
+    }
+
+    public synchronized void display() {
         System.out.println("\nInventory:");
         for (String key : map.keySet()) {
             System.out.println(key + " -> " + map.get(key));
@@ -104,6 +109,8 @@ class SearchService {
 class Reservation {
     String name;
     String roomType;
+    String roomId; // Added in UC7
+    boolean isCancelled = false; // Added in UC10
 
     public Reservation(String name, String roomType) {
         this.name = name;
@@ -114,19 +121,19 @@ class Reservation {
 class BookingQueue {
     private Queue<Reservation> queue = new LinkedList<>();
 
-    public void addRequest(Reservation r) {
+    public synchronized void addRequest(Reservation r) {
         queue.offer(r);
     }
 
-    public Reservation next() {
+    public synchronized Reservation next() {
         return queue.poll();
     }
 
-    public boolean isEmpty() {
+    public synchronized boolean isEmpty() {
         return queue.isEmpty();
     }
 
-    public void displayQueue() {
+    public synchronized void displayQueue() {
         System.out.println("\n=== Booking Queue ===");
         for (Reservation r : queue) {
             System.out.println(r.name + " -> " + r.roomType);
