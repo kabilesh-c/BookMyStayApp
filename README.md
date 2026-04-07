@@ -13,70 +13,66 @@ This project focuses on strengthening:
 
 ---
 
-# 🧾 Use Case 10 (UC10) – Booking Cancellation & Inventory Rollback
+# 🧾 Use Case 11 (UC11) – Concurrent Booking Simulation
 
 ## 🎯 Goal
-Enable safe cancellation of confirmed bookings by correctly reversing system state changes, ensuring inventory consistency and predictable recovery behavior.
+Demonstrate how concurrent access to shared resources can lead to inconsistent system state and show how synchronization ensures correctness under multi-user conditions.
 
 ---
 
 ## 🧠 Problem Solved
-Without cancellation logic:
-- Confirmed bookings were final and could not be undone.
-- Inventory would remain depleted even if a guest decided not to stay.
-- System state could become inconsistent if attempted manually.
+Without synchronization in a multi-threaded environment:
+- Multiple threads could decrement inventory simultaneously, leading to overbooking.
+- Race conditions would cause inconsistent state in shared queues and maps.
+- System reliability would fail under high traffic.
 
 ---
 
 ## 🧩 Key Concepts Used
 
-### 🔹 Stack Data Structure (LIFO)
-Used to track released room IDs. Stacks are ideal for rollback operations because they naturally reverse the last action performed.
+### 🔹 Thread Safety
+Ensures that shared resources (Inventory, Queue) behave correctly when accessed by multiple threads simultaneously.
 
-### 🔹 State Reversal (Rollback)
-The system performs a controlled sequence of operations to undo a booking: updating reservation status, logging the released ID, and incrementing inventory.
+### 🔹 synchronized Keywords
+Used to define critical sections where only one thread can execute at a time. This protects shared mutable state from corruption.
 
-### 🔹 Controlled Mutation
-State changes are performed in a strict order to prevent partial successes that could leave the system in an invalid state.
+### 🔹 Race Conditions & Critical Sections
+Identifying parts of the code where interleaving operations cause issues and wrapping them in protective locks.
 
-### 🔹 Inventory Restoration
-Inventory counts are accurately incremented immediately, making the room available for future searches and bookings.
+### 🔹 Multithreading (Thread Class)
+Using `Thread` objects to simulate simultaneous booking requests from multiple users.
 
 ---
 
 ## 🏗 Folder Structure
-The folder structure has been updated with a new core class:
+The logic for UC11 is integrated into the core engine to demonstrate thread-safe state management:
 ```
 App/
   src/
-    CancellationService.java    (Cancellation & Rollback Logic)
-    BookingReportService.java
-    BookingQueue.java
-    BookingService.java
-    BookMyStayApp.java
-    Reservation.java            (Updated for Cancel Status)
-    SearchService.java
+    BookMyStayApp.java          (Integrated Concurrent Simulation)
+    BookingService.java         (Thread-safe logic)
+    BookingQueue.java           (Synchronized methods)
+    ...
 ```
 
 ---
 
 ## 🔄 Flow
-1. Guest initiates a cancellation request.
-2. `CancellationService` validates that the reservation exists and is active.
-3. The reservation is marked as `cancelled`.
-4. The allocated `roomId` is pushed onto the **Rollback Stack**.
-5. Inventory count for that `roomType` is incremented.
-6. The system displays a confirmation of the state reversal.
+1. Multiple threads are spawned to represent different guests.
+2. Threads concurrently add requests to the `BookingQueue`.
+3. `BookingService` processes these requests using synchronized access to avoid race conditions.
+4. Inventory is decremented safely within a locked context.
+5. The final inventory matches the total number of processed bookings exactly.
 
 ---
 
 ## ✅ Outcome
-- Full flexibility for guests to manage their bookings.
-- Perfect inventory accuracy through automated restoration.
-- Clear audit trail of released room IDs via the Rollback Stack.
+- System remains consistent even under high load.
+- No race conditions or data corruption in the inventory.
+- Real-world readiness for handling multiple users simultaneously.
 
 ## 🚀 Scalability
-The rollback logic can be extended to handle refunds or notification triggers when a cancellation occurs.
+This foundation allows the application to be scaled to a web-based environment where many users interact with the same database.
 
 ## 🧠 Key Concepts Used
 
