@@ -3,15 +3,17 @@ import java.util.*;
 /**
  * BookMyStayApp
  *
- * UC4 + UC5 + UC6 Combined
+ * UC4 + UC5 + UC6 + UC7 + UC8 Combined
  *
  * Features:
  * - UC4: Read-only Room Search
  * - UC5: Booking Request Queue (FIFO)
  * - UC6: Safe Booking Allocation (No Double Booking)
+ * - UC7: Booking Confirmation & Safe Allocation
+ * - UC8: Booking History & Reporting (Historical Tracking)
  *
  * @author Kabilesh C
- * @version 1.5.0
+ * @version 1.6.0
  */
 
 /* ============================== DOMAIN MODEL ============================== */
@@ -215,6 +217,14 @@ public class BookMyStayApp {
         // UC6: PROCESS BOOKINGS
         BookingService bookingService = new BookingService(inventory);
         bookingService.processBookings(queue);
+
+        // UC8: BOOKING HISTORY & REPORTING
+        System.out.println("\n===== UC8: BOOKING HISTORY & REPORTING =====");
+        BookingReportService reportService = new BookingReportService();
+        List<Reservation> history = bookingService.getBookingHistory();
+        
+        reportService.generateSummaryReport(history);
+        reportService.generateTypeBasedReport(history);
 
         // Final Inventory
         inventory.display();
